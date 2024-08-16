@@ -2,26 +2,26 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const passport = require("passport");
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
 const routes = require("./routes");
 require("./services/googleStrategy");
-require("./services/jwtStrategy");
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
+const CLIENT_URL =
+  process.env.NODE_ENV === "production"
+    ? process.env.CLIENT_URL_PROD
+    : process.env.CLIENT_URL_DEV;
 
+app.use(cors({ origin: CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(passport.initialize());
 
 app.use("/", routes);
-
-// Test Routes to be removed later
-app.get("/", (req, res) => {
-  res.send("<a href='/auth/google'>Signup with google</a>");
-});
 
 app.listen(PORT, () => {
   mongoose.connect(process.env.MONGO_URI).then(() => {

@@ -2,7 +2,9 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/userModel");
 
-const serverUrl = process.env.SERVER_URL || "http://localhost:3000";
+const serverUrl = process.env.SERVER_URL_DEV || process.env.SERVER_URL_PROD;
+
+console.log(`${serverUrl}${process.env.GOOGLE_CALLBACK_URL}`);
 
 passport.use(
   new GoogleStrategy(

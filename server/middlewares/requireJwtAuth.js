@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const requireJwtAuth = (req, res, next) => {
-  const token = req.cookies["x-auth-cookie"];
+  const token = req.cookies["jwtToken"]; // Updated cookie name
 
   if (!token) {
     return res.status(401).json({ error: "No token provided" });
@@ -13,7 +13,6 @@ const requireJwtAuth = (req, res, next) => {
     }
 
     req.user = decoded;
-
     next();
   });
 };

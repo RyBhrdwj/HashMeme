@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const users = require("../../controllers/userController");
+const requireJwtAuth = require("../../middlewares/requireJwtAuth");
 
 /*
     User Routes (/user)
@@ -17,6 +18,6 @@ const users = require("../../controllers/userController");
 */
 
 router.get("/:id", users.getUser);
-router.put("/:id/username", users.changeUsername);
+router.put("/:id/username", requireJwtAuth, users.changeUsername);
 
 module.exports = router;

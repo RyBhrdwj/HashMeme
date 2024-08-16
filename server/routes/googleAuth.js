@@ -17,36 +17,29 @@ router.get(
   "/signup",
   passport.authenticate("google", {
     scope: ["profile", "email"],
-    failureRedirect: "http://localhost:3000/auth",
+    failureRedirect: "http://localhost:5173/auth",
     session: false,
   }),
-  async (req, res) => {
-    try {
-      console.log("User in signup route:", req.user);
-      // Generate JWT token
-      const token = jwt.sign({ id: req.user._id }, secretOrKey, {
-        expiresIn: "1h",
-      });
-
-      console.log(token);
-
-      // Send token to client via cookie
-      res.cookie("x-auth-cookie", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-      });
-
-      // Redirect to client URL
-      const clientUrl =
-        process.env.NODE_ENV === "production"
-          ? process.env.CLIENT_URL_PROD
-          : process.env.CLIENT_URL_DEV;
-
-      res.redirect(clientUrl);
-    } catch (error) {
-      console.error("Error in OAuth callback:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+  (req, res) => {
+    if (!req.user) {
+      return res.redirect("http://localhost:5173/auth");
     }
+
+    const token = jwt.sign(
+      { id: req.user._id, username: req.user.username },
+      secretOrKey,
+      { expiresIn: "1h", algorithm: "HS256" }
+    );
+
+    console.log("GoogleAuth : ", token);
+
+    res.cookie("jwtToken", token, {
+      httpOnly: true,
+      secure: false, // Set to true if using HTTPS
+      sameSite: "Lax",
+    });
+
+    res.redirect("http://localhost:5173/me");
   }
 );
 
