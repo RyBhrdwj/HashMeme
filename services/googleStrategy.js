@@ -13,7 +13,6 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        console.log("Callback");
         let user = await User.findOne({ googleId: profile.id });
 
         if (user) {
@@ -27,7 +26,6 @@ passport.use(
         });
 
         await user.save();
-
         return done(null, user);
       } catch (error) {
         return done(error, null);

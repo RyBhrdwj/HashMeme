@@ -16,6 +16,7 @@ const users = require("../../controllers/userController");
     (triggered after successful signup)
 */
 
+router.get("/:id", users.getUser);
 router.put("/:id/username", users.changeUsername);
 
 module.exports = router;

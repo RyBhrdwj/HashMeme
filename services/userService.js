@@ -11,6 +11,17 @@ class UserService {
     return UserService.instance;
   }
 
+  async findById(id) {
+    try {
+      const user = await this.user.readOne(id);
+
+      return user;
+    } catch (error) {
+      console.log("Service Error : " + error);
+      throw error;
+    }
+  }
+
   async findOrCreateUser(profile) {
     try {
       let user = await this.user.readOneByField("googleId", profile.id);

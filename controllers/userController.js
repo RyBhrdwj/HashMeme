@@ -4,8 +4,20 @@ const userService = require("../services/userService");
 
 class UserController {
   constructor() {
-    this.user = userService;
+    this.user = new userService();
   }
+
+  getUser = async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const user = await this.user.findById(id);
+
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(500).json({ error: `Controller Err : ${error}` });
+    }
+  };
 
   changeUsername = async (req, res) => {
     try {

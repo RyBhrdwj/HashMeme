@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const passport = require("passport");
+const cookieParser = require("cookie-parser");
 
 const routes = require("./routes");
 require("./services/googleStrategy");
@@ -12,6 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(passport.initialize());
 
 app.use("/", routes);
@@ -19,10 +21,6 @@ app.use("/", routes);
 // Test Routes to be removed later
 app.get("/", (req, res) => {
   res.send("<a href='/auth/google'>Signup with google</a>");
-});
-
-app.get("/auth", (req, res) => {
-  res.send(`You're in`);
 });
 
 app.listen(PORT, () => {

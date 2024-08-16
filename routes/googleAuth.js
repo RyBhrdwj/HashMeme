@@ -1,5 +1,8 @@
 const router = require("express").Router();
 const passport = require("passport");
+const jwt = require("jsonwebtoken");
+
+const secretOrKey = process.env.JWT_SECRET;
 
 router.get(
   "/google",
@@ -9,11 +12,7 @@ router.get(
   })
 );
 
-const clientUrl =
-  process.env.NODE_ENV === "production"
-    ? process.env.CLIENT_URL_PROD
-    : process.env.CLIENT_URL_DEV;
-
+// Handles Google OAuth callback
 router.get(
   "/signup",
   passport.authenticate("google", {
@@ -21,11 +20,33 @@ router.get(
     failureRedirect: "http://localhost:3000/auth",
     session: false,
   }),
-  (req, res) => {
-    console.log("User is authenticated");
-    const token = req.user.generateJWT();
-    res.cookie("x-auth-cookie", token);
-    res.redirect(clientUrl);
+  async (req, res) => {
+    try {
+      console.log("User in signup route:", req.user);
+      // Generate JWT token
+      const token = jwt.sign({ id: req.user._id }, secretOrKey, {
+        expiresIn: "1h",
+      });
+
+      console.log(token);
+
+      // Send token to client via cookie
+      res.cookie("x-auth-cookie", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+      });
+
+      // Redirect to client URL
+      const clientUrl =
+        process.env.NODE_ENV === "production"
+          ? process.env.CLIENT_URL_PROD
+          : process.env.CLIENT_URL_DEV;
+
+      res.redirect(clientUrl);
+    } catch (error) {
+      console.error("Error in OAuth callback:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
   }
 );
 
