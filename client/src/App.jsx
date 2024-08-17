@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import ImageUpload from "./components/imageUpload";
 
 function App() {
   const [username, setUsername] = useState(null);
@@ -32,23 +33,25 @@ function App() {
   };
 
   return (
-    <Router>
+    <>
       <nav className="flex w-full text-2xl bg-zinc-700 justify-evenly items-center [&>a:hover]:text-blue-500 h-12">
         <a href="/me">Me</a>
         <a href="/feed">Feed</a>
         <a href="/">Home</a>
         <a href="/upload">Upload</a>
       </nav>
-      <Routes>
-        <Route
-          path="/me"
-          element={<Me username={username} handleLogin={handleLogin} />}
-        />
-        <Route path="/feed" element={<Feed />} />
-        <Route path="/upload" element={<Upload />} />
-        <Route path="/" element={<Home />} />
-      </Routes>
-    </Router>
+      <Router>
+        <Routes>
+          <Route
+            path="/me"
+            element={<Me username={username} handleLogin={handleLogin} />}
+          />
+          <Route path="/feed" element={<Feed />} />
+          <Route path="/upload" element={<Upload />} />
+          <Route path="/" element={<Home />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 
@@ -77,7 +80,12 @@ function Feed() {
 }
 
 function Upload() {
-  return <h1 className="w-full text-center text-4xl mt-4">Upload Page</h1>;
+  return (
+    <>
+      <h1 className="w-full text-center text-4xl mt-4">Upload Page</h1>
+      <ImageUpload />
+    </>
+  );
 }
 
 function Home() {
