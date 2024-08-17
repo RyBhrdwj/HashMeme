@@ -31,9 +31,15 @@ class PostController {
 
   createPost = async (req, res) => {
     try {
-      const postData = req.body;
+      const postData = {};
+
+      postData.author = req.user.id;
+
+      const s3Response = await uploadFileToS3(req.file);
+      postData.imageUrl = s3Response.Location;
 
       const newPost = await this.post.create(postData);
+
       res.status(201).json(newPost);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -43,10 +49,11 @@ class PostController {
   deletePost = async (req, res) => {
     try {
       const { id } = req.params;
+      const userId = req.user.id;
 
-      await this.post.destroy(id);
+      const result = await this.post.deletePost(id, userId);
 
-      res.status(200).json({ message: "Post deleted successfully" });
+      res.status(200).json(result);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -55,7 +62,7 @@ class PostController {
   postLike = async (req, res) => {
     try {
       const { id } = req.params;
-      const userId = req.body.userId;
+      const userId = req.user.id;
 
       const post = await this.post.addLike(id, userId);
 
@@ -74,7 +81,7 @@ class PostController {
   deleteLike = async (req, res) => {
     try {
       const { id } = req.params;
-      const userId = req.body.userId;
+      const userId = req.user.id;
 
       const post = await this.post.removeLike(id, userId);
 

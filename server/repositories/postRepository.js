@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Post = require("../models/postModel");
 const crudRepository = require("./crudRepository");
 
@@ -31,6 +32,37 @@ class postRepository extends crudRepository {
       throw error;
     }
   };
+
+  async destroyWithSession(postId, session) {
+    return this.post.deleteOne({ _id: postId }).session(session);
+  }
+
+  async findPostById(postId) {
+    return this.post.findById(postId);
+  }
+
+  async deletePost(postId, userId) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const post = await this.findById(postId);
+
+      if (!post) throw new Error("Post not found");
+      if (post.author.toString() !== userId)
+        throw new Error("Unauthorized : User is not the author of the post");
+
+      await this.destroyWithSession(postId, session);
+
+      await session.commitTransaction();
+      return { success: true, message: "Post deleted successfully" };
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  }
 
   getPostsByUserId = async (userId) => {
     try {

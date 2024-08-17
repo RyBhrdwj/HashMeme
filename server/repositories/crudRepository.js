@@ -13,6 +13,10 @@ class crudRepository {
     }
   };
 
+  findById = async (id) => {
+    return this.model.findById(id);
+  }
+
   readAll = async () => {
     try {
       const doc = await this.model.find({});
