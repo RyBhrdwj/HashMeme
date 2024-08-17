@@ -8,12 +8,14 @@ class UploadController {
 
     try {
       const s3Response = await uploadFileToS3(req.file);
+
       res.status(200).send({
         message: "File uploaded successfully",
         file: s3Response,
       });
     } catch (error) {
       console.error("Error uploading file to S3:", error);
+      
       res.status(500).send("Error uploading file");
     }
   }
