@@ -7,7 +7,7 @@ router.use("/auth", googleAuthRoutes);
 router.use("/api", apiRoutes);
 
 router.get("/api/protected", requireJwtAuth, (req, res) => {
-  res.json(req.user).redirect("localhost:5173/me");
+  res.json(req.user);
 });
 
 
