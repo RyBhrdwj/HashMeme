@@ -3,6 +3,7 @@ const passport = require("passport");
 const jwt = require("jsonwebtoken");
 
 const secretOrKey = process.env.JWT_SECRET;
+const AUTH_REDIRECT = process.env.AUTH_REDIRECT;
 
 router.get(
   "/google",
@@ -28,7 +29,7 @@ router.get(
     const token = jwt.sign(
       { id: req.user._id, username: req.user.username },
       secretOrKey,
-      { expiresIn: "1h", algorithm: "HS256" }
+      { expiresIn: "20d", algorithm: "HS256" }
     );
 
     console.log("GoogleAuth : ", token);
@@ -39,7 +40,7 @@ router.get(
       sameSite: "Lax",
     });
 
-    res.redirect("http://localhost:5173/me");
+    res.redirect(AUTH_REDIRECT);
   }
 );
 
