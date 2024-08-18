@@ -1,9 +1,9 @@
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useCallback, useEffect } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Post from "../components/Post";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // Import the useAuth hook
+import { useAuth } from "../context/AuthContext";
 
 const fetchPosts = async ({ pageParam = 1 }) => {
   try {
@@ -63,16 +63,30 @@ function Feed() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
+
+  useEffect(() => {
+    const checkScreenFilled = () => {
+      if (
+        loader.current &&
+        loader.current.getBoundingClientRect().top < window.innerHeight &&
+        hasNextPage &&
+        !isFetchingNextPage
+      ) {
+        fetchNextPage();
+      }
+    };
+    checkScreenFilled();
+  }, [posts, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (isLoading) return <p>Loading posts...</p>;
   if (error) return <p>Error fetching posts: {error.message}</p>;
 
   return (
-    <div className="feed-container p-4">
+    <div className="flex flex-col items-center w-full mt-4">
       {posts.length === 0 ? (
         <p>No posts available</p>
       ) : (

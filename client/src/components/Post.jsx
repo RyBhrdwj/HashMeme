@@ -25,9 +25,9 @@ function Post({ id, username, imageUrl, initialLikeCount, isLiked }) {
   };
 
   return (
-    <div className="post-box p-4 mb-4 rounded-lg shadow-md w-1/2 bg-zinc-950">
+    <div className="p-4 mb-4 rounded-lg shadow-md w-80 bg-zinc-950">
       <div className="username text-lg font-bold mb-2">{username}</div>
-      <img src={imageUrl} alt="Post" className="w-full h-auto mb-2" />
+      <img src={imageUrl} alt="Post" className="w-64 h-auto m-auto" />
       <div className="actions flex justify-between">
         <button
           className={`like-button ${liked ? 'bg-blue-700' : 'bg-blue-500'} text-white p-2 rounded hover:bg-blue-600`}
