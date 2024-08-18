@@ -12,28 +12,39 @@ const fetchAuth = async () => {
   const response = await axios.get(`${SERVER_URL}/api/protected`, {
     withCredentials: true,
   });
-
-  return response.data.username;
+  
+  return {
+    id: response.data.id,
+    username: response.data.username,
+  };
 };
 
 export const AuthProvider = ({ children }) => {
-  const {
-    data: username,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["auth"],
     queryFn: fetchAuth,
   });
 
-  const [authState, setAuthState] = useState({ username, isLoading, isError });
+  const [authState, setAuthState] = useState({
+    id: null,
+    username: null,
+    isLoading: true,
+    isError: false,
+  });
 
   useEffect(() => {
-    setAuthState({ username, isLoading, isError });
-  }, [username, isLoading, isError]);
+    if (data) {
+      setAuthState({
+        id: data.id,
+        username: data.username,
+        isLoading,
+        isError,
+      });
+    }
+  }, [data, isLoading, isError]);
 
   const handleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_SERVER_URL}/auth/google`;
+    window.location.href = `${SERVER_URL}/auth/google`;
   };
 
   return (

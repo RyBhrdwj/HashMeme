@@ -2,16 +2,22 @@ import React, { useRef, useCallback } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Post from "../components/Post";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // Import the useAuth hook
 
 const fetchPosts = async ({ pageParam = 1 }) => {
   try {
-    const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/posts`, {
-      params: { page: pageParam, limit: 4 },
-    });
+    const response = await axios.get(
+      `${import.meta.env.VITE_SERVER_URL}/api/posts`,
+      {
+        params: { page: pageParam, limit: 4 },
+        withCredentials: true,
+      }
+    );
     return response.data;
   } catch (error) {
     if (error.response?.status === 401) {
-      window.location.href = '/login';
+      throw new Error("Unauthorized");
     } else {
       throw error;
     }
@@ -20,6 +26,8 @@ const fetchPosts = async ({ pageParam = 1 }) => {
 
 function Feed() {
   const loader = useRef(null);
+  const navigate = useNavigate();
+  const { id: currentUserId } = useAuth();
 
   const {
     data,
@@ -34,6 +42,11 @@ function Feed() {
     getNextPageParam: (lastPage, allPages) => {
       const hasMore = lastPage.length === 4;
       return hasMore ? allPages.length + 1 : undefined;
+    },
+    onError: (error) => {
+      if (error.message === "Unauthorized") {
+        navigate("/login");
+      }
     },
   });
 
@@ -63,11 +76,14 @@ function Feed() {
       {posts.length === 0 ? (
         <p>No posts available</p>
       ) : (
-        posts.map((post, index) => (
+        posts.map((post) => (
           <Post
-            key={index}
+            key={post._id}
+            id={post._id}
             username={post.author.username}
             imageUrl={post.imageUrl}
+            initialLikeCount={post.likes.length}
+            isLiked={post.likes.includes(currentUserId)}
           />
         ))
       )}

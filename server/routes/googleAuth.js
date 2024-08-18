@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 
 const secretOrKey = process.env.JWT_SECRET;
 const AUTH_REDIRECT = process.env.AUTH_REDIRECT;
+const AUTH_FAILURE_REDIRECT = process.env.AUTH_FAILURE_REDIRECT;
+const IS_HTTPS = process.env.IS_HTTPS;
 
 router.get(
   "/google",
@@ -18,12 +20,12 @@ router.get(
   "/signup",
   passport.authenticate("google", {
     scope: ["profile", "email"],
-    failureRedirect: "http://localhost:5173/auth",
+    failureRedirect: AUTH_FAILURE_REDIRECT,
     session: false,
   }),
   (req, res) => {
     if (!req.user) {
-      return res.redirect("http://localhost:5173/auth");
+      return res.redirect("http://localhost:5173/signup");
     }
 
     const token = jwt.sign(
@@ -36,7 +38,7 @@ router.get(
 
     res.cookie("jwtToken", token, {
       httpOnly: true,
-      secure: false, // Set to true if using HTTPS
+      secure: IS_HTTPS,
       sameSite: "Lax",
     });
 

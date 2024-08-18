@@ -4,7 +4,7 @@ const User = require("../models/userModel");
 
 const serverUrl = process.env.SERVER_URL_DEV || process.env.SERVER_URL_PROD;
 
-console.log(`${serverUrl}${process.env.GOOGLE_CALLBACK_URL}`);
+// console.log(`${serverUrl}${process.env.GOOGLE_CALLBACK_URL}`);
 
 passport.use(
   new GoogleStrategy(
