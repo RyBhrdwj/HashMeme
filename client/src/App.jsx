@@ -1,95 +1,65 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import ImageUpload from "./components/imageUpload";
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+import Profile from './pages/profile';
+import Feed from './pages/feed';
+import Upload from './pages/upload';
+import Login from './pages/login';
+import './index.css';
 
 function App() {
-  const [username, setUsername] = useState(null);
+  const { username, isLoading, isError, handleLogin } = useAuth();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:3000/api/protected",
-          {
-            withCredentials: true, // Ensures cookies are sent with the request
-          }
-        );
-
-        setUsername(response.data.username);
-      } catch (error) {
-        console.error("Authentication failed:", error);
-        setUsername(null);
-      }
-    };
-
-    checkAuth(); // Check authentication status on component mount
-  }, []);
-
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL;
-
-  const handleLogin = () => {
-    window.location.href = `${SERVER_URL}/auth/google`;
-  };
-
-  return (
-    <>
-      <nav className="flex w-full text-2xl bg-zinc-700 justify-evenly items-center [&>a:hover]:text-blue-500 h-12">
-        <a href="/me">Me</a>
-        <a href="/feed">Feed</a>
-        <a href="/">Home</a>
-        <a href="/upload">Upload</a>
-      </nav>
-      <Router>
-        <Routes>
-          <Route
-            path="/me"
-            element={<Me username={username} handleLogin={handleLogin} />}
-          />
-          <Route path="/feed" element={<Feed />} />
-          <Route path="/upload" element={<Upload />} />
-          <Route path="/" element={<Home />} />
-        </Routes>
-      </Router>
-    </>
-  );
-}
-
-function Me({ username, handleLogin }) {
-  return (
-    <div className="content h-full">
-      <h1 className="w-full text-center text-4xl mt-4">Me Page</h1>
-      <div className="flex w-full justify-center items-center h-full">
-        {username ? (
-          <h1 className="w-full text-center text-4xl mt-4">Hi, {username}</h1>
-        ) : (
-          <button
-            onClick={handleLogin}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-          >
-            Login with Google
-          </button>
-        )}
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+        <div className="bg-white p-8 rounded-lg shadow-lg">
+          <div className="w-24 h-2 bg-gray-300 mb-4"></div>
+          <div className="w-48 h-2 bg-gray-300 mb-2"></div>
+          <div className="w-32 h-2 bg-gray-300"></div>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-function Feed() {
-  return <h1 className="w-full text-center text-4xl mt-4">Feed Page</h1>;
-}
+  if (isError) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-red-500 text-white z-50">
+        <p>Error loading data. Please try again later.</p>
+      </div>
+    );
+  }
 
-function Upload() {
   return (
-    <>
-      <h1 className="w-full text-center text-4xl mt-4">Upload Page</h1>
-      <ImageUpload />
-    </>
+    <Router>
+      <nav className={`flex w-full py-6 text-2xl bg-zinc-800 border-b border-b-gray-500 justify-evenly items-center [&>a:hover]:text-blue-500 h-12 ${isLoading ? 'pointer-events-none opacity-50' : ''}`}>
+        <a href="/feed">Feed</a>
+        <a href="/upload">Upload</a>
+        {username ? (
+          <a href={`/user/${username}`} className="text-blue-500 hover:text-blue-700 text-lg font-medium">
+            {username}
+          </a>
+        ) : (
+          <a href="/signup" className="text-blue-500 hover:text-blue-700 text-lg font-medium">
+            Login
+          </a>
+        )}
+      </nav>
+      <Routes>
+        <Route path="/signup" element={<Login handleLogin={handleLogin} />} />
+        <Route path="/login" element={<Login handleLogin={handleLogin} />} />
+        <Route
+          path="/feed"
+          element={username ? <Feed /> : <Navigate to="/signup" />}
+        />
+        <Route
+          path="/upload"
+          element={username ? <Upload /> : <Navigate to="/signup" />}
+        />
+        <Route path="/user/:username" element={<Profile />} />
+      </Routes>
+    </Router>
   );
-}
-
-function Home() {
-  return <h1 className="w-full text-center text-4xl mt-4">Home Page</h1>;
 }
 
 export default App;
