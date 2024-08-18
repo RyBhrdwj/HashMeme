@@ -7,12 +7,22 @@ class postRepository extends crudRepository {
     super(Post);
   }
 
+  async readAll(page = 1, limit = 4) {
+    const skip = (page - 1) * limit; 
+
+    return Post.find()
+      .skip(skip)
+      .limit(limit) 
+      .populate("author", "username") 
+      .exec();
+  }
+
   addLike = async (postId, userId) => {
     try {
       return await this.model.findOneAndUpdate(
-        { _id: postId, likes: { $ne: userId } }, // Ensure user hasn't liked the post already
-        { $push: { likes: userId } }, // Add userId to the likes array
-        { new: true } // Return the updated document
+        { _id: postId, likes: { $ne: userId } }, // user hasn't liked the post already
+        { $push: { likes: userId } }, // push user in the likes
+        { new: true }
       );
     } catch (error) {
       console.error("Repository Err:", error);
@@ -23,9 +33,9 @@ class postRepository extends crudRepository {
   removeLike = async (postId, userId) => {
     try {
       return await this.model.findOneAndUpdate(
-        { _id: postId, likes: userId }, // Ensure user has liked the post
-        { $pull: { likes: userId } }, // Remove userId from the likes array
-        { new: true } // Return the updated document
+        { _id: postId, likes: userId }, // if user has liked post
+        { $pull: { likes: userId } }, // remove the id from likes
+        { new: true }
       );
     } catch (error) {
       console.error("Repository Err:", error);

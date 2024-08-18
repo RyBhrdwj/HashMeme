@@ -17,16 +17,6 @@ class crudRepository {
     return this.model.findById(id);
   }
 
-  readAll = async () => {
-    try {
-      const doc = await this.model.find({});
-      return doc;
-    } catch (error) {
-      console.log("crud error : " + error);
-      throw error;
-    }
-  };
-
   readOne = async (id) => {
     try {
       const doc = await this.model.findById(id);

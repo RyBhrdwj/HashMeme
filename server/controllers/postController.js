@@ -1,5 +1,6 @@
 const PostRepository = require("../repositories/PostRepository");
 const LikeRepository = require("../repositories/LikeRepository");
+const uploadFileToS3 = require("../utils/s3Util");
 
 class PostController {
   constructor() {
@@ -9,7 +10,10 @@ class PostController {
 
   getAllPosts = async (req, res) => {
     try {
-      const posts = await this.post.readAll();
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 4; 
+      
+      const posts = await this.post.readAll(page, limit);
 
       res.status(200).json(posts);
     } catch (error) {
